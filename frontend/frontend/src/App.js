@@ -13,6 +13,7 @@ function App() {
   const [error, setError] = useState(null);
   const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const fetchHistory = async () => {
     try {
@@ -75,8 +76,8 @@ function App() {
     }
   };
 
-  const handleClearHistory = async () => {
-    if (!window.confirm("Are you sure you want to clear all screening history?")) return;
+  const handleConfirmClearHistory = async () => {
+    setShowConfirmModal(false);
     try {
       const res = await fetch(`${API_BASE_URL}/history/clear/`, { method: "DELETE" });
       if (res.ok) {
@@ -142,7 +143,10 @@ function App() {
             <div className="history-header">
               <h2>Recent Screenings</h2>
               {history.length > 0 && (
-                <button className="clear-history-btn" onClick={handleClearHistory}>
+                <button
+                  className="clear-history-btn"
+                  onClick={() => setShowConfirmModal(true)}
+                >
                   Clear History
                 </button>
               )}
@@ -206,6 +210,37 @@ function App() {
           </div>
         )}
       </main>
+
+      {/* Modern Centered Confirmation Modal */}
+      {showConfirmModal && (
+        <div
+          className="modal-backdrop"
+          onClick={() => setShowConfirmModal(false)}
+        >
+          <div className="modal-box" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-icon">🗑️</div>
+            <h3>Clear All History?</h3>
+            <p>
+              Are you sure you want to delete all saved resume screening records?
+              This action cannot be undone.
+            </p>
+            <div className="modal-actions">
+              <button
+                className="modal-btn-cancel"
+                onClick={() => setShowConfirmModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="modal-btn-confirm"
+                onClick={handleConfirmClearHistory}
+              >
+                Yes, Clear All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <footer className="app-footer">
         <p>ResumeIQ • Automated Candidate Evaluation & Skill Extraction</p>
