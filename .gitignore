@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.sqlite3
+
+# Node / React
+node_modules/
+build/
+.npm
+.eslintcache
+
+# Environment & IDE
+.env
+.DS_Store
+.idea/
+.vscode/

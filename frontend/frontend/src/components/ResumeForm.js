@@ -1,194 +1,107 @@
-// import { useState } from "react";
+import React, { useRef } from "react";
 
-// function ResumeForm({ setResult }) {
+function ResumeForm({
+  file,
+  setFile,
+  jobType,
+  setJobType,
+  onSubmit,
+  loading
+}) {
+  const fileInputRef = useRef(null);
 
-//   const [resume, setResume] = useState("");
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setFile(e.target.files[0]);
+    }
+  };
 
-//   const submitResume = async () => {
+  const handleClearFile = () => {
+    setFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
-//     const response = await fetch(
-//       "http://127.0.0.1:8000/api/screen/",
-//       {
-//         method: "POST",
-//         headers: {
-//           "Content-Type": "application/json"
-//         },
-//         body: JSON.stringify({
-//           resume
-//         })
-//       }
-//     );
-
-//     const data = await response.json();
-
-//     setResult(data);
-//   };
-
-//   return (
-//     <div>
-//       <textarea
-//         rows="10"
-//         cols="50"
-//         placeholder="Paste Resume Here"
-//         value={resume}
-//         onChange={(e) =>
-//           setResume(e.target.value)
-//         }
-//       />
-
-//       <br />
-
-//       <button onClick={submitResume}>
-//         Analyze Resume
-//       </button>
-//     </div>
-//   );
-// }
-
-// export default ResumeForm;
-
-
-// import { useState } from "react";
-
-// function ResumeUpload() {
-
-//   const [file, setFile] = useState(null);
-//   const [jobType, setJobType] = useState("IT");
-
-//   const submitResume = async () => {
-
-//     const formData = new FormData();
-
-//     formData.append("resume", file);
-//     formData.append("job_type", jobType);
-
-//     const response = await fetch(
-//       "http://127.0.0.1:8000/api/screen/",
-//       {
-//         method: "POST",
-//         body: formData
-//       }
-//     );
-
-//     const data = await response.json();
-
-//     console.log(data);
-//   };
-
-//   return (
-//     <div>
-
-//       <h1>AI Resume Screening</h1>
-
-//       <select
-//         onChange={(e) =>
-//           setJobType(e.target.value)
-//         }
-//       >
-//         <option value="IT">IT</option>
-//         <option value="NON_IT">
-//           Non-IT
-//         </option>
-//       </select>
-
-//       <br /><br />
-
-//       <input
-//         type="file"
-//         accept=".pdf,.doc,.docx"
-//         onChange={(e) =>
-//           setFile(e.target.files[0])
-//         }
-//       />
-
-//       <br /><br />
-
-//       <button onClick={submitResume}>
-//         Analyze Resume
-//       </button>
-
-//     </div>
-//   );
-// }
-
-// export default ResumeUpload;
-
-
-import { useState } from "react";
-
-function ResumeUpload() {
-
-  const [file, setFile] = useState(null);
-  const [jobType, setJobType] = useState("IT");
-  const [result, setResult] = useState(null);
-
-  const submitResume = async () => {
-
-    const formData = new FormData();
-
-    formData.append("resume", file);
-    formData.append("job_type", jobType);
-
-    const response = await fetch(
-      "http://127.0.0.1:8000/api/screen/",
-      {
-        method: "POST",
-        body: formData
-      }
-    );
-
-    const data = await response.json();
-
-    setResult(data);   // Store result
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
+    return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
 
   return (
-    <div>
-      <h1>AI Resume Screening</h1>
+    <div className="form-card">
+      <div className="form-group">
+        <label htmlFor="job-type-select">Target Industry / Domain</label>
+        <select
+          id="job-type-select"
+          value={jobType}
+          onChange={(e) => setJobType(e.target.value)}
+          disabled={loading}
+        >
+          <option value="IT">IT & Software Engineering</option>
+          <option value="NON_IT">Non-IT (Finance, Accounts, Sales, Ops)</option>
+        </select>
+      </div>
 
-      <select onChange={(e) => setJobType(e.target.value)}>
-        <option value="IT">IT</option>
-        <option value="NON_IT">Non-IT</option>
-      </select>
-
-      <br /><br />
-
-      <input
-        type="file"
-        accept=".pdf,.doc,.docx"
-        onChange={(e) => setFile(e.target.files[0])}
-      />
-
-      <br /><br />
-
-      <button onClick={submitResume}>
-        Analyze Resume
-      </button>
-
-      {/* Output Display */}
-      {result && (
-        <div style={{marginTop: "20px"}}>
-          <h2>Resume Analysis Result</h2>
-
-          <p>
-            <strong>Job Type:</strong> {result.job_type}
-          </p>
-
-          <p>
-            <strong>Match Score:</strong> {result.score}%
-          </p>
-
-          <h3>Matched Skills</h3>
-
-          <ul>
-            {result.matched_skills.map((skill) => (
-              <li key={skill}>{skill}</li>
-            ))}
-          </ul>
+      <div className="form-group">
+        <label>Upload Candidate Resume</label>
+        <div
+          className={`dropzone ${file ? "has-file" : ""}`}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".pdf,.docx,.txt"
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+            disabled={loading}
+          />
+          {file ? (
+            <div className="file-preview">
+              <span className="file-icon">📑</span>
+              <div className="file-details">
+                <span className="file-name">{file.name}</span>
+                <span className="file-size">{formatFileSize(file.size)}</span>
+              </div>
+              <button
+                type="button"
+                className="remove-file-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleClearFile();
+                }}
+                title="Remove file"
+              >
+                ✕
+              </button>
+            </div>
+          ) : (
+            <div className="dropzone-placeholder">
+              <span className="upload-icon">📤</span>
+              <p className="primary-text">Click or drag & drop resume here</p>
+              <p className="secondary-text">Supported formats: PDF, DOCX, TXT (Max 10MB)</p>
+            </div>
+          )}
         </div>
-      )}
+      </div>
+
+      <button
+        className={`submit-btn ${loading ? "loading" : ""}`}
+        onClick={onSubmit}
+        disabled={loading || !file}
+      >
+        {loading ? (
+          <>
+            <span className="spinner"></span> Analyzing Resume...
+          </>
+        ) : (
+          "🔍 Analyze Resume"
+        )}
+      </button>
     </div>
   );
 }
 
-export default ResumeUpload;
+export default ResumeForm;
