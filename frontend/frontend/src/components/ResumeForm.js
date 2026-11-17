@@ -6,13 +6,15 @@ function ResumeForm({
   jobType,
   setJobType,
   onSubmit,
-  loading
+  loading,
+  onClearResult
 }) {
   const fileInputRef = useRef(null);
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
+      if (onClearResult) onClearResult();
     }
   };
 
@@ -21,6 +23,7 @@ function ResumeForm({
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
+    if (onClearResult) onClearResult();
   };
 
   const formatFileSize = (bytes) => {
@@ -36,7 +39,10 @@ function ResumeForm({
         <select
           id="job-type-select"
           value={jobType}
-          onChange={(e) => setJobType(e.target.value)}
+          onChange={(e) => {
+            setJobType(e.target.value);
+            if (onClearResult) onClearResult();
+          }}
           disabled={loading}
         >
           <option value="IT">IT & Software Engineering</option>

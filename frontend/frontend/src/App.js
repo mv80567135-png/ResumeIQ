@@ -30,6 +30,11 @@ function App() {
     fetchHistory();
   }, []);
 
+  const handleClearResult = () => {
+    setResult(null);
+    if (error) setError(null);
+  };
+
   const handleAnalyzeResume = async () => {
     if (!file) {
       setError("Please select a resume file before analyzing.");
@@ -116,15 +121,21 @@ function App() {
           file={file}
           setFile={(f) => {
             setFile(f);
+            setResult(null); // Clear previous result whenever a new file is chosen
             if (error) setError(null);
           }}
           jobType={jobType}
-          setJobType={setJobType}
+          setJobType={(jt) => {
+            setJobType(jt);
+            setResult(null); // Clear result if industry domain changes
+          }}
           onSubmit={handleAnalyzeResume}
           loading={loading}
+          onClearResult={handleClearResult}
         />
 
-        <Result result={result} />
+        {/* Only show result when BOTH a resume file is selected AND an analysis result exists */}
+        {file && result && <Result result={result} />}
 
         {showHistory && (
           <div className="history-card">
@@ -176,6 +187,9 @@ function App() {
                           <button
                             className="view-btn"
                             onClick={() => {
+                              // Load the historical record and attach virtual file info
+                              setFile({ name: item.file_name || "Resume.pdf", size: 0 });
+                              setJobType(item.job_type === "Non-IT" ? "NON_IT" : "IT");
                               setResult(item);
                               window.scrollTo({ top: 0, behavior: "smooth" });
                             }}
