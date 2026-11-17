@@ -3,7 +3,7 @@ import "./App.css";
 import ResumeForm from "./components/ResumeForm";
 import Result from "./components/Result";
 
-const API_BASE_URL = "http://127.0.0.1:8000/api";
+const API_BASE_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000/api";
 
 function App() {
   const [file, setFile] = useState(null);
